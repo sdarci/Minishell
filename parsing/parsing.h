@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: eheike <eheike@student.21-school.ru>       +#+  +:+       +#+        */
+/*   By: sdarci <sdarci@student.21-school.ru>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/26 15:20:46 by eheike            #+#    #+#             */
-/*   Updated: 2022/05/29 19:25:09 by eheike           ###   ########.fr       */
+/*   Updated: 2022/05/30 16:54:48 by sdarci           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,27 +25,27 @@ typedef struct s_list
 
 typedef struct s_redir
 {
-	int				type_re;
-	char			*name;
-	char			*text;
-	struct s_redir	*next;
+	int				type_re; // типы редиеректа
+	char			*name; // filename or limiter
+	char			*text; // текст
+	struct s_redir	*next; // 
 }	t_redir;
 
 typedef struct s_tok
 {
-	int				total;
-	int				num;
-	int				flag_l;
-	int				flag_r;
-	int				flag_dub_r;
-	int				flag_dub_l;
-	int				flag_q;
-	int				flag_dub_q;
-	char			*line;
-	char			*cmd;
-	void			*to_ex;
-	t_redir			*redir;
-	struct s_tok	*next;
+	int				total; // команды между трубами (труба + 1)
+	int				num; // номер команды
+	int				flag_l; //
+	int				flag_r; // 
+	int				flag_dub_r; //
+	int				flag_dub_l; //
+	int				flag_q; // 
+	int				flag_dub_q; //
+	char			*line; // stroka s komandoi 
+	char			*cmd; //comanda
+	void			*to_ex; // 
+	t_redir			*redir; // редиректы структура
+	struct s_tok	*next; // 
 }	t_tok;
 
 typedef struct s_data

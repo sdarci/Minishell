@@ -1,0 +1,22 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory `/Users/ksu/minishell/minishellmake'
+cc  -c main.c -o  main.o 
+cc  -c cd.c -o  cd.o 
+cc  -c echo.c -o  echo.o 
+cc  -c utils.c -o  utils.o 
+cc  -c ft_export.c -o  ft_export.o 
+cc  -c buildins.c -o  buildins.o 
+cc  -c exit.c -o  exit.o 
+cc  -c parsing/parsing.c -o  parsing/parsing.o 
+cc  -c parsing/change_env.c -o  parsing/change_env.o 
+cc  -c parsing/lists_func.c -o  parsing/lists_func.o 
+cc  -c parsing/LIBFT/ft_split.c -o  parsing/LIBFT/ft_split.o 
+cc  -c parsing/LIBFT/ft_strdup.c -o  parsing/LIBFT/ft_strdup.o 
+cc  -c parsing/LIBFT/ft_strjoin.c -o  parsing/LIBFT/ft_strjoin.o 
+cc  -c parsing/LIBFT/ft_strncmp.c -o  parsing/LIBFT/ft_strncmp.o 
+cc  -c parsing/LIBFT/ft_strtrim.c -o  parsing/LIBFT/ft_strtrim.o 
+cc  -c parsing/LIBFT/ft_memcpy.c -o  parsing/LIBFT/ft_memcpy.o 
+cc  -c parsing/LIBFT/ft_strchr.c -o  parsing/LIBFT/ft_strchr.o 
+cc  main.o cd.o echo.o utils.o ft_export.o buildins.o exit.o parsing/parsing.o parsing/change_env.o parsing/lists_func.o parsing/LIBFT/ft_split.o parsing/LIBFT/ft_strdup.o parsing/LIBFT/ft_strjoin.o parsing/LIBFT/ft_strncmp.o parsing/LIBFT/ft_strtrim.o parsing/LIBFT/ft_memcpy.o parsing/LIBFT/ft_strchr.o -lreadline -L parsing/LIBFT -o minishell
+make: Leaving directory `/Users/ksu/minishell/minishellmake'
+ 

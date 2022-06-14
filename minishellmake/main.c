@@ -1,13 +1,43 @@
 #include "minishell.h"
 
+static void	ms_cmd_execute_pipe(t_shell *shell)
+{
+	int		fd[4];
+
+	pipe(fd);
+	fd[2] = fd[0];
+	fd[3] = fd[1];
+	ms_cmd_execute_fork(shell);
+	while (shell->cmd->next != NULL)
+	{
+		close(fd[3]);
+		pipe(fd);
+		fd[3] = fd[1];
+	// ms_cmd_execute_fork(shell);
+		shell->cmd = shell->cmd->next;
+		ms_cmd_execute_fork(shell);
+		close(fd[2]);
+		fd[2] = fd[0];
+	}
+	fd[2] = fd[0];
+	close(fd[3]);
+	close(fd[2]);
+}
+
 void	msshell_do(t_shell *sh)
 {
-	printf("%d\n", sh->cmd->red->type_out);
-	if (sh->cmd->next == NULL && sh->cmd->red == NULL)
-		do_shell_command(sh);
-	if (sh->cmd->next == NULL && sh->cmd->red != NULL)
-		ms_cmd_execute_fd_redirect_out(sh);
-		
+	// if (sh->cmd->next == NULL)
+	// 	do_shell_command(sh);
+	// if (sh->cmd->next == NULL && sh->cmd->red != NULL)
+	// {
+	// 	fd_redirect_out(sh);
+	// 	fd_redirect_in(sh);
+	// 	do_shell_command(sh);
+	// }
+	if (sh->cmd->next == NULL)
+		ms_cmd_execute_fork(sh);
+	else
+		ms_cmd_execute_pipe(sh);
 }
 
 
@@ -50,21 +80,18 @@ t_shell *struct_init(void)
 int main(int argc, char **argv, char **env)
 {
 	t_shell *shell;
-	char *name = "MiniShell";
 	char cwd[1000];
 
 	shell = struct_init();
+	argc++;
+	argv = NULL;
 	shell->prompt_name = (char *)malloc(10000);
 	shell->copy_env = env;
-	// while (ft_strncmp("PATH=", *env, 5) != 0 && *env)
-	// 	env++;
 	while (1)
 	{
 		ft_get_status_string(shell, cwd);
 		shell->cmd = parse(shell->input, env);
-		//exec_buildin(shell, cwd);
 		msshell_do(shell);
-		//ms_tree_execute(shell);
 		free(shell->input);
 	}
 	return (0);

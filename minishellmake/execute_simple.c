@@ -1,4 +1,28 @@
 #include "minishell.h"
+
+static int	build_or_cmds(t_shell *shell)
+{
+	// if (ft_strcmp(shell->cmd->cmd_arr[0], "cd") == 0)
+	// 	ms_cmd_execute_cd(shell);
+	// else if (ft_strcmp(shell->cmd->cmd_arr[0], "prompt") == 0)
+	// 	ms_cmd_execute_prompt(shell);
+	// else if (ft_strcmp(shell->cmd->cmd_arr[0], "pwd") == 0)
+	// 	ms_cmd_execute_pwd(shell);
+	// else if (ft_strcmp(shell->cmd->cmd_arr[0], "test") == 0)
+	// 	ms_cmd_execute_test(shell);
+	if (ft_strcmp(shell->cmd->cmd_arr[0], "exit") == 0)
+		ms_cmd_execute_exit(shell);
+	else if (ft_strcmp(shell->cmd->cmd_arr[0], "echo") == 0)
+		ft_echo(shell);
+	// else if (ft_strcmp(shell->cmd->cmd_arr[0], "env") == 0)
+	// 	ms_cmd_execute_env(shell);
+	// else if (shell->cmd->cmd_arr[0][0])
+	do_shell_command(shell);
+	ms_cmd_argv_free(shell->cmd);
+	ms_shell_destroy(shell);
+	exit(0);
+}
+
 static void	ft_is_dir(t_shell *shell, char *name)
 {
 	int	fd;
@@ -9,7 +33,7 @@ static void	ft_is_dir(t_shell *shell, char *name)
 		ft_putstr(name, 2);
 		ft_putstr(" - is a directory\n", 2);
 		ms_cmd_argv_free(shell->cmd);
-		//ms_shell_destroy(shell);
+		ms_shell_destroy(shell);
 		exit(126);
 	}
 	else if (fd > 0)
@@ -73,8 +97,10 @@ void	do_shell_command(t_shell *shell)
 {
 	size_t	i;
 	char	*path;
+	t_tok	*cmdexe;
 
 	i = 0;
+	cmdexe = shell->cmd;
 	while (shell->copy_env[i] && ft_strncmp("PATH=", shell->copy_env[i], 5) != 0)
 		i++;
 	if (!shell->copy_env[i] || ft_strchr(shell->cmd->cmd_arr[0], '/'))
@@ -87,10 +113,42 @@ void	do_shell_command(t_shell *shell)
 		ft_putstr((shell->cmd->cmd_arr)[0], 2);
 		ft_putstr(").\n", 2);
 		ms_cmd_argv_free(shell->cmd);
-		//ms_shell_destroy(shell);
+		ms_shell_destroy(shell);
 		exit(127);
 	}
 	ft_is_dir(shell, shell->cmd->cmd_arr[0]);
-	execve(shell->cmd->cmd_arr[0], shell->cmd->cmd_arr, shell->copy_env);
+	execve(shell->cmd->cmd_arr[0],shell->cmd->cmd_arr, shell->copy_env);
 	ft_puterror(shell, 3, strerror(errno));
+}
+
+
+void	ms_cmd_execute_fork(t_shell *shell)
+{
+	pid_t	pid;
+	int		tempfd_stdout;
+	int		test;
+
+	pid = fork();
+	if (pid < 0)
+		printf("ERROR BLA BLA BLA \n");
+	if (pid == 0)
+	{
+		//ms_signals_handler(shell, 1, 0);
+		tempfd_stdout = dup(1);
+		//ms_cmd_execute_fd_null(shell);
+		//ms_write_heredoc_file(shell);
+		fd_redirect_in(shell);
+		fd_redirect_out(shell);
+		// if (shell->cmd->stdin_pipe)
+		// 	dup2(shell->cmd->pipe_read, 0);
+		// if (shell->cmd->stdout_pipe)
+		// 	dup2(shell->cmd->pipe_write, 1);
+		build_or_cmds(shell);
+		//if (build_or_cmds(shell) == 0)
+		ms_cmd_execute_command_error(shell, tempfd_stdout);
+	}
+	else
+		waitpid(pid, &test, 0);
+	//build_or_cmds(shell);
+	//ms_cmd_execute_after_fork(shell, pid);
 }

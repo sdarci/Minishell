@@ -128,24 +128,40 @@ void	ms_cmd_argv_free(t_tok *cmd)
 	ft_free((void **)&cmd->cmd_arr);
 }
 
+void	ms_shell_destroy(t_shell *shell)
+{
+	if (shell != NULL)
+	{
+		if (shell->input != NULL)
+			ft_free((void **)&shell->input);
+		if (shell->prompt_name != NULL)
+			ft_free((void **)&shell->prompt_name);
+		if (shell->prompt_line != NULL)
+			ft_free((void **)&shell->prompt_line);
+		// if (shell->lexerlist != NULL)
+		// 	ms_lexerlist_destroy(shell);
+		// if (shell->lexertree != NULL)
+		// 	ms_parse_tree_destroy(shell);
+		// if (shell->trlist != NULL)
+		// 	ms_trlist_destroy(shell);
+		if (shell->cmd != NULL)
+			ft_free((void **)&shell->cmd);
+		// ft_arrayfree((void ***)&shell->envp, shell->env_size);
+		// ft_free((void **)&shell->st);
+		ft_free((void **)&shell);
+		shell = NULL;
+	}
+}
 
-// void	ft_puterror(t_shell *shell, int code, char *name)
-// {
-// 	ft_putstr("Error: ", 2);
-// 	if (code == 1)
-// 		ft_putstr("Programmu neobhodimo zapuskat bez parametrov\n", 2);
-// 	if (code == 2)
-// 	{
-// 		ft_putstr("Ne udalos vydelit pamyat. ", 2);
-// 		ft_putstr(name, 2);
-// 	}
-// 	if (code == 3)
-// 		ft_putstr("excve\n", 2);
-// 	if (code == 4)
-// 	{
-// 		ft_putstr("incorrect variable. ", 2);
-// 		ft_putstr(name, 2);
-// 	}
-// 	//ms_shell_destroy(shell);
-// 	exit(1);
-// }
+void	ms_cmd_execute_command_error(t_shell *shell, int tempfd_stdout)
+{
+	dup2(tempfd_stdout, 1);
+	ft_putstr(COLOR_RED, 2);
+	ft_putstr("Command not found: ", 2);
+	ft_putstr(shell->cmd->cmd_arr[0], 2);
+	ft_putstr("\n", 2);
+	ft_putstr(COLOR_RESET, 2);
+	ms_cmd_argv_free(shell->cmd);
+	ms_shell_destroy(shell);
+	exit(1);
+}

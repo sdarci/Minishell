@@ -6,7 +6,6 @@
 # include <string.h>
 # include <readline/readline.h>
 # include <readline/history.h>
-//# include "parsing/parsing.h"
 # include <signal.h>
 # include <sys/wait.h>
 # include <fcntl.h>
@@ -89,36 +88,12 @@ typedef struct s_shell
 	t_tok		*cmd;
 }	t_shell;
 
-enum e_errors
-{
-	NOT_ERROR = 0,
-	ERROR = -1,
-	E_MALLOC = 3,
-	E_FILE_OPEN = 1,
-	E_SYNTAX = 258,
-	E_COMNOT = 127,
-	E_PREPARSER = 259
-};
-
-enum e_redirect
-{
-	R_IN = 1,
-	R_OUT = 2,
-	R_IN_DELIMITER = 3,
-	R_OUT_APPEND = 4,
-	R_FALSE = 0
-};
-
-enum e_bool
-{
-	TRUE = -10,
-	FALSE = -20
-};
 
 
 
 // cd.c
-static void	too_many_arg(t_shell *shell);
+//static void	too_many_arg(t_shell *shell);
+
 
 // echo.c
 void	ft_echo(t_shell *s);
@@ -131,6 +106,8 @@ char	*ft_substr(char const *s, unsigned int start, size_t len);
 void	ft_putstr(char *str, int std_var);
 void	ft_puterror(t_shell *shell, int code, char *name);
 void	ms_cmd_argv_free(t_tok *cmd);
+void	ms_shell_destroy(t_shell *shell);
+void	ms_cmd_execute_command_error(t_shell *shell, int tempfd_stdout);
 
 //buildins.c
 void	exec_buildin(t_shell *shell, char *cwd);
@@ -154,9 +131,11 @@ struct env1	*env_list(int argc, char **argv, char **env);
 
 // executor.c
 void	do_shell_command(t_shell *shell);
+void	ms_cmd_execute_fork(t_shell *shell);
 
 // redirects
-void	ms_cmd_execute_fd_redirect_out(t_shell *shell);
+void	fd_redirect_out(t_shell *shell);
+void	fd_redirect_in(t_shell *shell);
 
 void	find_spec(t_tok **tokens);
 t_list	*list_of_bildins(void);

@@ -6,7 +6,7 @@
 #    By: sdarci <sdarci@student.21-school.ru>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/12/03 16:09:07 by mkoch             #+#    #+#              #
-#    Updated: 2022/06/12 18:19:17 by sdarci           ###   ########.fr        #
+#    Updated: 2022/06/14 18:13:56 by sdarci           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,7 +17,7 @@ SRCS =	main.c cd.c echo.c utils.c ft_export.c buildins.c exit.c execute_simple.c
 			parsing/change_env.c parsing/lists_func.c parsing/LIBFT/ft_split.c \
 			parsing/LIBFT/ft_strdup.c parsing/LIBFT/ft_strjoin.c parsing/LIBFT/ft_strncmp.c \
 			parsing/LIBFT/ft_strtrim.c  parsing/LIBFT/ft_memcpy.c \
-			parsing/LIBFT/ft_strchr.c  
+			parsing/LIBFT/ft_strchr.c parsing/LIBFT/ft_strcmp.c
 
 HEADER = minishell.h
 
@@ -25,7 +25,7 @@ FT_DIR = parsing/LIBFT
 
 OBJS = $(SRCS:%.c=%.o)
 
-CFLAGS = 
+CFLAGS = -g -fsanitize=address
 RM = rm -f
 
 all: $(NAME)

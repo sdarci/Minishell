@@ -6,7 +6,7 @@
 /*   By: sdarci <sdarci@student.21-school.ru>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/13 16:23:40 by sdarci            #+#    #+#             */
-/*   Updated: 2022/06/12 11:18:35 by sdarci           ###   ########.fr       */
+/*   Updated: 2022/06/13 18:30:51 by sdarci           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,4 +51,5 @@ char	*ft_substr(char const *s, unsigned int start, size_t len);
 int		ft_tolower(int c);
 int		ft_toupper(int c);
 char	*ft_strtrim(char const *s1, char const *set);
+int		ft_strcmp(const char *s1, const char *s2);
 #endif

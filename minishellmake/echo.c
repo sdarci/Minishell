@@ -3,7 +3,6 @@
 void	ft_echo(t_shell *s)
 {
 	int		i;
-	char	*str;
 
 	i = 0;
 	while(s->input[i] != '\0')

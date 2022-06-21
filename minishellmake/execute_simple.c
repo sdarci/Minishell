@@ -1,5 +1,18 @@
 #include "minishell.h"
 
+static void	ms_write_heredoc_file(t_shell *shell)
+{
+	if (shell->cmd->red != NULL)
+	{
+		if (shell->cmd->red->type_in == 4)
+		{
+			ms_write_heredoc_file_readline(shell);
+			//shell->cmd->red->out = shell->heredoc_file;
+		}
+	}
+}
+
+
 static int	build_or_cmds(t_shell *shell)
 {
 	// if (ft_strcmp(shell->cmd->cmd_arr[0], "cd") == 0)
@@ -127,7 +140,8 @@ void	ms_cmd_execute_fork(t_shell *shell)
 	pid_t	pid;
 	int		tempfd_stdout;
 	int		test;
-
+	
+	ms_create_heredoc_file(shell);
 	pid = fork();
 	if (pid < 0)
 		printf("ERROR BLA BLA BLA \n");
@@ -136,19 +150,23 @@ void	ms_cmd_execute_fork(t_shell *shell)
 		//ms_signals_handler(shell, 1, 0);
 		tempfd_stdout = dup(1);
 		//ms_cmd_execute_fd_null(shell);
-		//ms_write_heredoc_file(shell);
+		if (shell->p_r)
+		{
+			dup2(shell->p_r, 0);
+		}
+		if (shell->p_wr)
+		{
+			dup2(shell->p_wr, 1);
+		}
+		ms_write_heredoc_file(shell);
 		fd_redirect_in(shell);
 		fd_redirect_out(shell);
-		// if (shell->cmd->stdin_pipe)
-		// 	dup2(shell->cmd->pipe_read, 0);
-		// if (shell->cmd->stdout_pipe)
-		// 	dup2(shell->cmd->pipe_write, 1);
 		build_or_cmds(shell);
-		//if (build_or_cmds(shell) == 0)
 		ms_cmd_execute_command_error(shell, tempfd_stdout);
 	}
 	else
-		waitpid(pid, &test, 0);
+		waitpid(pid, &test, WUNTRACED);
+	//ms_signals_handler(shell, 2, pid);
 	//build_or_cmds(shell);
 	//ms_cmd_execute_after_fork(shell, pid);
 }

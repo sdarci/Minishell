@@ -3,104 +3,92 @@
 /*                                                        :::      ::::::::   */
 /*   change_env.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sdarci <sdarci@student.21-school.ru>       +#+  +:+       +#+        */
+/*   By: eheike <eheike@student.21-school.ru>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/26 15:24:50 by eheike            #+#    #+#             */
-/*   Updated: 2022/06/12 11:38:06 by sdarci           ###   ########.fr       */
+/*   Updated: 2022/06/21 17:59:45 by eheike           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-char	*replace_env(struct env1 **list_of_env, char *line)
-{
-	struct env1	*tmp;
-	char		*buf;
-	char		*temp;
-	char		**arr;
-	int			i;
-	int			j;
-	int			flag;
-
-	arr = ft_split(line, '$');
-	if (line[0] == '$')
-		i = 0;
-	else
-		i = 1;
-	flag = 0;
-	while (arr[i])
-	{
-		tmp = *list_of_env;
-		j = 0;
-		while (arr[i][j] && arr[i][j] != '<' && arr[i][j] != '>' && arr[i][j] != 34 && arr[i][j] != 39)
-			j++;
-		while (tmp)
-		{
-			buf = ft_substr(arr[i], 0, (ft_strlen(tmp->key) + 1));
-			if (!ft_strncmp(buf, tmp->key, ft_strlen(buf)))
-			{
-				free(buf);
-				buf = ft_strjoin(tmp->value, (arr[i] + ft_strlen(tmp->key) + 1));
-				free(arr[i]);
-				arr[i] = buf;
-				flag = 1;
-			}
-			
-			if (flag == 0)
-			{
-				free (buf);
-				if (tmp->next == NULL)
-				{
-					buf = ft_strdup(arr[i] + j);
-					free (arr[i]);
-					arr[i] = buf;
-				}
-			}
-			tmp = tmp->next;
-		}
-		i++;
-	}
-	buf = ft_strdup(arr[0]);
-	i = 1;
-	while (arr[i])
-	{
-		temp = buf;
-		buf = ft_strjoin(buf, arr[i]);
-		free (temp);
-		i++;
-	}
-	return (buf);
-}
-
-void	check_env(char **line, char **env)
+char	*find_var(char *var, char **env)
 {
 	struct env1	*list_of_env;
-	int			i;
-	char		*tmp;
-	char		*buf;
-	char		**arr;
+	struct env1	*tmp;
 
-	i = 0;
-	list_of_env = env_list(0, NULL, env);
-	arr = ft_split(*line, ' ');
-	while (arr[i])
+	list_of_env = env_list(env);
+	tmp = list_of_env;
+	while (tmp)
 	{
-		buf = replace_env(&list_of_env, arr[i]);
-		free(arr[i]);
-		arr[i] = buf;
-		i++;
+		if (!ft_strncmp(var, tmp->key, ft_strlen(tmp->key)))
+			return (tmp->value);
+		else
+			tmp = tmp->next;
 	}
-	buf = ft_strdup(arr[0]);
-	i = 1;
-	while (arr[i])
+	return (NULL);
+}
+
+char	*repl_line(char *line, int start, char *val, int *len)
+{
+	char	*buf;
+	char	*res;
+	char	*tmp;
+
+	buf = ft_substr(line, 0, start - 1);
+	res = ft_strdup(buf);
+	free(buf);
+	if (val != NULL)
 	{
-		tmp = buf;
-		buf = ft_strjoin(buf, " ");
-		free (tmp);
-		tmp = buf;
-		buf = ft_strjoin(buf, arr[i]);
-		free (tmp);
-		i++;
+		buf = ft_strdup(val);
+		//tmp = res;
+		res = ft_strjoin(res, buf);
+		//free(tmp);
+		free(buf);
 	}
-	*(line) = buf;
+	buf = ft_substr(line, *len, ft_strlen(line) + (*len));
+	//tmp = res;
+	res = ft_strjoin(res, buf);
+	//free(tmp);
+	free(buf);
+	if (val != NULL)
+		(*len) = start + ft_strlen(val) - ((*len) - start - 1);
+	else
+		(*len) = start - 1;
+	return(res);
+}
+
+char	*change_var(char *line, int *i, char **env)
+{
+	char	*buf;
+	char	*val;
+	int		a;
+	int		j;
+
+	(*i)++;
+	a = *i;
+	while ((line[a] > 47 && line[a] < 58) || (line[a] > 64 && line[a] < 91) || (line[a] > 96 && line[a] < 123) || line[a] == 95 || line[a] == 63)
+		a++;
+	if (a > *i)
+	{
+		buf = (char *)malloc(sizeof(char) * (a - (*i) + 1));
+		j = 0;
+		while (*i < a)
+		{
+			buf[j] = line[*i];
+			(*i)++;
+			j++;
+		}
+		buf[j] = '\0';
+		val = find_var(buf, env);
+		printf("value = %s\n", val);
+		//printf("key = %s, val = %s\n", buf, val);
+		//free(buf);
+		line = repl_line(line, (*i) - j, val, i);
+		// if (val != NULL)
+		// 	free(val);
+	}
+		// else
+	// 	line = repl_line(line, (*i), NULL, i);
+	return(line);
 }

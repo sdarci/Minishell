@@ -3,46 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   parsing.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sdarci <sdarci@student.21-school.ru>       +#+  +:+       +#+        */
+/*   By: eheike <eheike@student.21-school.ru>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/18 15:27:21 by eheike            #+#    #+#             */
-/*   Updated: 2022/06/12 16:11:23 by sdarci           ###   ########.fr       */
+/*   Updated: 2022/06/21 15:06:35 by eheike           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
-
-void	count_redir(int *i, char c, t_tok **tmp)
-{
-	int	*flag;
-	int	*flag_dub;
-
-	flag = &(*tmp)->flag_l;
-	flag_dub = &(*tmp)->flag_dub_l;
-	if (c == '>')
-	{
-		flag = &(*tmp)->flag_r;
-		flag_dub = &(*tmp)->flag_dub_r;
-	}
-	if ((*tmp)->line[*i + 1] != c)
-		(*flag)++;
-	else
-	{
-		(*flag_dub)++;
-		(*i)++;
-	}
-	(*i)++;
-	while ((*tmp)->line[*i] == ' ')
-		(*i)++;
-	if ((flag || flag_dub) && (*tmp)->red == NULL)
-		(*tmp)->red = init_red();
-	return ;
-}
-
 void	find_spec(t_tok **tokens)
 {
 	int		i;
 	t_tok	*tmp;
+	char	c;
 
 	tmp = *tokens;
 	while (tmp)
@@ -50,140 +23,44 @@ void	find_spec(t_tok **tokens)
 		i = 0;
 		while (tmp->line[i])
 		{
+			if (tmp->line[i] == 34 || tmp->line[i] == 39)
+			{
+				c = tmp->line[i];
+				i++;
+				while (tmp->line[i] != c && tmp->line[i])
+					i++;
+				//i++;
+			}
 			if (tmp->line[i] == '>')
 			{
 				count_redir(&i, '>', &tmp);
 				if (!tmp->line[i] || tmp->line[i] == '<' || tmp->line[i] == '>')
 					exit(1);//некорректный символ после '<'
+				i--; // посмотреть почему накручивается лишний раз счетчик
 			}	
 			else if (tmp->line[i] == '<')
 			{
 				count_redir(&i, '<', &tmp);
 				if (!tmp->line[i] || tmp->line[i] == '<' || tmp->line[i] == '>')//подправить
 					exit(1);//некорректный символ после '<'
+				i--;
 			}
 			i++;
 		}
 		tmp = tmp->next;
+		
 	}
 }
 
-void	sort_of_redir(t_tok **toks, int type, char *buf)
-{
-	t_list	*red;
-	
-	if ((type == 1 || type == 2) && ((*toks)->flag_r + (*toks)->flag_dub_r == 1))
-	{
-		(*toks)->red->out = buf;
-		(*toks)->red->type_out = type;
-	}
-	else if ((type == 1 || type == 2) && ((*toks)->flag_r + (*toks)->flag_dub_r != 1))
-	{
-		red = create_node(buf, type);
-		add_node(&(*toks)->create, red);
-	}
-	else if ((type == 3 || type == 4) && ((*toks)->flag_l + (*toks)->flag_dub_l == 1))
-	{
-		(*toks)->red->in = buf;
-		(*toks)->red->type_in = type;
-	}
-	else if ((type == 3 || type == 4) && ((*toks)->flag_l + (*toks)->flag_dub_l != 1))
-	{
-		red = create_node(buf, type);
-		add_node(&(*toks)->check, red);
-	}
-	return ;
-}
-
-void	new_redir(t_tok **toks, int type, int *i, int *flag)
-{
-	int		j;
-	int		a;
-	char	*buf;
-
-	if (type == 1 || type == 3)
-		(*i)++;
-	else if (type == 2 || type == 4)
-		(*i) += 2;
-	if ((*toks)->line[*i] == ' ')
-		(*i)++;
-	j = *i;
-	while ((*toks)->line[*i] && (*toks)->line[*i] != ' ' && (*toks)->line[*i] != '>' && (*toks)->line[*i] != '<')
-		(*i)++;
-	buf = (char *)malloc(sizeof(char) * (*i - j + 3));
-	if (buf == NULL)
-		exit(1);// вернуть ошибку
-	a = 0;
-	while (j < *i)
-		buf[a++] = (*toks)->line[j++];
-	buf[a] = '\0';
-	sort_of_redir(toks, type, buf);
-	(*flag)--;
-	return ;
-}
-
-void	rec_cmd(t_tok **toks, int *i)
-{
-	int		j;
-	int		a;
-	char	*buf;
-	char	*tmp;
-
-	if ((*toks)->line[*i] != '>' && (*toks)->line[*i] && (*toks)->line[*i] != '<')
-	{
-		j = *i;
-		a = 0;
-		while ((*toks)->line[*i] && (*toks)->line[*i] != '>' && (*toks)->line[*i] != '<')
-			(*i)++;
-		buf = (char *)malloc(sizeof(char) * (*i - j + 1));
-		if (buf == NULL)
-			return ;// вернуть ошибку
-		while (j < *i)
-			buf[a++] = (*toks)->line[j++];
-		buf[a] = '\0';
-		if ((*toks)->cmd == NULL)
-			(*toks)->cmd = buf;
-		else
-		{
-			tmp = (*toks)->cmd;
-			(*toks)->cmd = ft_strjoin((*toks)->cmd, buf);
-			free(tmp);
-		}
-	}
-}
-
-int	check_cmd_build_in(t_tok *tok)
-{
-	t_list	*list_of_bilds;
-	t_list	*tmp;
-
-	list_of_bilds = list_of_bildins();
-	tmp = list_of_bilds;
-	while (tmp)
-	{
-		if (ft_strncmp(tok->cmd_arr[0], tmp->data, ft_strlen(tok->cmd_arr[0])) == 0)
-		{
-			//del_list(&list_of_bilds);//освободить массив и все его внутренние маллоки
-			return (tmp->type);
-		}
-		tmp = tmp->next;
-	}
-	//del_list(&list_of_bilds);
-	return (0);
-}
-
-void	parse_of_line(t_tok **tokens, char **env) // больше 25 строк
+void	parse_of_line(t_tok **tokens) // больше 25 строк
 {
 	int		i;
-	char	*buf;
-	char	*fr;
 	t_tok	*tmp;
 
 	tmp = *tokens;
 	find_spec(tokens);
 	while (tmp)
 	{
-		check_env(&(tmp->line), env);
 		i = 0;
 		rec_cmd(&tmp, &i);
 		while (tmp->flag_r || tmp->flag_dub_r || tmp->flag_l || tmp->flag_dub_l)
@@ -197,11 +74,29 @@ void	parse_of_line(t_tok **tokens, char **env) // больше 25 строк
 				new_redir(&tmp, 3, &i, &(tmp->flag_l));
 			else if (tmp->line[i] == '<' && tmp->line[i + 1] == '<')
 				new_redir(&tmp, 4, &i, &(tmp->flag_dub_l));
-			while (tmp->line[i] == ' ')
-				i++;
 			rec_cmd(&tmp, &i);
 		}
-		tmp->cmd_arr = ft_split(tmp->cmd, ' ');//перевод команды из строки в массив
+		// if (tmp->red)
+		// {
+		// 	if (tmp->red->in)
+		// 		tmp->red->in = del_quots(tmp->red->in, tmp->env);
+		// 	if (tmp->red->out)
+		// 		tmp->red->out = del_quots(tmp->red->out, tmp->env);
+		// }
+		//printf("razdelenie po probelam\n");
+		//printf("cmd = %s\n", tmp->cmd);
+		tmp->cmd_arr = mini_split(count_del(tmp->cmd, ' '), tmp->cmd, i, ' ');
+		if (tmp->cmd_arr == NULL)
+			return ;
+		//tmp->cmd_arr = ft_split(tmp->cmd, 32);
+		i = 0;
+		while (tmp->cmd_arr[i])
+		{
+			tmp->cmd_arr[i] = del_quots(tmp->cmd_arr[i], tmp->env);
+			//printf("cmd line posle : %s\n", tmp->cmd_arr[i]);
+			i++;
+		}
+		//del_quots(tmp->cmd, env);
 		tmp->f_build_in = check_cmd_build_in(tmp);//проверка команды на то, является ли она билд ином
 		tmp = tmp->next;
 	}
@@ -231,29 +126,54 @@ int	check_void_pipe(char **arr)
 	return(0);
 }
 
-t_tok	*parse(char *line, char *env[]) //больше 25 строк и 4 переменных
+t_tok	*parse(char *line, char *env[], int *flag) //больше 25 строк и 4 переменных
 {
 	int		i;
 	int		total_pipes;
+	int		total_quots;
+	int		total_dub_quots;
 	char	**arr;
 	char	*buf;
 	t_tok	*tokens;
+	char	c;
 	
 	total_pipes = 0;
+	total_quots = 0;
+	total_dub_quots = 0;
 	i = 0;
-	while (line[i] == ' ')
+	if (line == NULL || !ft_strncmp(line, "\n", ft_strlen(line)))
+	{
+		if (line == NULL)
+			(*flag) = 1;
+		else if (!ft_strncmp(line, "\n", ft_strlen(line)))
+			(*flag) = 2;
+		return (NULL);
+	}
+	count_quots(&total_quots, &total_dub_quots, line);
+	while (line[i] == ' ') //тримом обрезать все исспейсы вначале и в конце
 		i++;
 	if (line[i] == '|')
 		return (NULL); //ошибка, труба не может быть первой
 	while (line[i])
 	{
+		while (line[i] != 34 && line[i] != 39 && line[i] && line[i] != '|')
+			i++;
+		if (line[i] == 34 || line[i] == 39) // есть такой же код, заменить на функцию
+		{
+			c = line[i];
+			i++;
+			while (line[i] != c)
+				i++;
+		}
 		if (line[i] == '|') // придумать проверку если между двумя трубами только пробелы
 			total_pipes++;
 		if (line[i] == '|' && line[i - 1] == '|')
 			return (NULL);
 		i++;
 	}
-	arr = ft_split(line, '|');
+	//printf("total pipes = %d\n", total_pipes);
+	arr = mini_split(total_pipes, line, i, '|');
+	//arr = mini_split(total_pipes, line, i, '|');
 	if (arr == NULL)
 		return (NULL); // проблема с маллок
 	if (check_void_pipe(arr) == 1)
@@ -261,58 +181,81 @@ t_tok	*parse(char *line, char *env[]) //больше 25 строк и 4 пере
 	i = 0;
 	while (arr[i])
 	{
-		buf = arr[i];
+		//printf("i = %d arr[i] = %s \n", i, arr[i]);
+		//buf = arr[i];
 		arr[i] = ft_strtrim(arr[i], " ");
-		free(buf);
+		//free(buf);
 		i++;
 	}
-	tokens = create_token_list(arr, total_pipes); // если последняя строка пустая, чтение последней команды из ввода
+	//printf("i = %d arr[i] = %s \n", i, arr[i]);
+	tokens = create_token_list(arr, total_pipes, env); // если последняя строка пустая, чтение последней команды из ввода
 	free(arr);
-	parse_of_line(&tokens, env);
+	parse_of_line(&tokens);
 	return (tokens);
 }
 
 // int	main(int argc, char **argv, char *envp[])
 // {
-// 	char	*str;
+// 	//char	*str;
 // 	t_tok	*tok;
-// 	t_tok	*tmp;
-// 	t_list *tmp_r;
+// 	//t_tok	*tmp;
+// 	//t_list *tmp_r;
+// 	//int		fd;
+// 	//char	buf[29];
+// 	char	*str;
+// 	//int i;
+// 	//int	a;
 
 // 	//str = "ls > file1 > file2 > file3 >file4";
-// 	//printf("%s\n", argv[1]);
-// 	tok = parse(argv[1], envp);
+// 	// printf("argc = %d\n", argc);
+// 	// printf("%s\n", argv[1]);
+// 	str = readline("str: ");
+// 	printf("readline = %s\n", str);
+// 	printf("%d %s\n", argc, argv[1]);
+// 	//fd = open(argv[1], O_RDONLY);
+// 	//buf = (char *)malloc(27);
+// 	//read(fd, buf, 28);
+// 	//buf[28] = '\0';
+// 	//tok = parse(argv[1], envp);
+// 	// printf("buf = %s\n", buf);
+// 	tok = parse(str, envp);
 // 	if (tok == NULL)
 // 		return (1);
-// 	tmp = tok;
-// 	while (tmp->next)
-// 	{
-// 		printf("line: %s\ncmd : %s(%d)\n%d / %d\nin: %s; out: %s\n", tmp->line, tmp->cmd_arr[0], tmp->f_build_in, tmp->num, tmp->total, tmp->red->in, tmp->red->out);
-// 		//printf("%d, %s\n", tmp->redir->type_re, tmp->redir->name);
-// 		//printf("%p\n", tmp->redir);
-// 		if (tmp->create != NULL)
-// 		{
-// 		// 	printf("privet\n");
-// 			tmp_r = tmp->create;
-// 			while (tmp_r)
-// 			{
-// 				printf("redirecty : %s\n\n", tmp_r->data);
-// 				tmp_r = tmp_r->next;
-// 			}
-// 			//printf("redirecty : %s\n\n", tmp_r->data);
-// 		}
-// 		tmp = tmp->next;
-// 	}
-// 	printf("line 1: %s\ncmd : %s(%d)\n%d / %d\nin: %s; out: %s\n", tmp->line, tmp->cmd_arr[0], tmp->f_build_in, tmp->num, tmp->total, tmp->red->in, tmp->red->out);
-// 	 if (tmp->check != NULL)
+// 	// tmp = tok;
+// 	// a = 0;
+// 	// while (tmp->next)
+// 	// {
+// 	// 	printf("line: %s\ncmd : %s(%d)\n%d / %d\nin: %s; out: %s\n", tmp->line, tmp->cmd_arr[0], tmp->f_build_in, tmp->num, tmp->total, tmp->red->in, tmp->red->out);
+// 	// 	//printf("%d, %s\n", tmp->redir->type_re, tmp->redir->name);
+// 	// 	//printf("%p\n", tmp->redir);
+// 	// 	while (tmp->cmd_arr[a])
+// 	// 		{
+// 	// 			printf("cmd %d : %s\n", a, tmp->cmd_arr[a]);
+// 	// 			a++;
+// 	// 		}
+// 	// 	if (tmp->create != NULL)
 // 	// 	{
-// 	// 		//printf("privet\n");
-// 			tmp_r = tmp->check;
-// 			while (tmp_r)
-// 			{
-// 				printf("redirecty : %s\n\n", tmp_r->data);
-// 				tmp_r = tmp_r->next;
-// 			}
+// 	// 	// 	printf("privet\n");
+// 	// 		tmp_r = tmp->create;
+// 	// 		while (tmp_r)
+// 	// 		{
+// 	// 			printf("redirecty : %s\n\n", tmp_r->data);
+// 	// 			tmp_r = tmp_r->next;
+// 	// 		}
+// 	// 		//printf("redirecty : %s\n\n", tmp_r->data);
+// 	// 	}
+// 	// 	tmp = tmp->next;
+// 	//}
+// 	//printf("line 1: %s\ncmd : %s(%d)\n%d / %d\nin: %s; out: %s\n", tmp->line, tmp->cmd_arr[0], tmp->f_build_in, tmp->num, tmp->total, tmp->red->in, tmp->red->out);
+// 	//  if (tmp->check != NULL)
+// 	// // 	{
+// 	// // 		//printf("privet\n");
+// 	// 		tmp_r = tmp->check;
+// 	// 		while (tmp_r)
+// 	// 		{
+// 	// 			printf("redirecty : %s\n\n", tmp_r->data);
+// 	// 			tmp_r = tmp_r->next;
+// 	// 		}
 // 	// 	}
 // 	// if (tmp->redir != NULL)
 // 	// 	//printf("%d, %s\n", tmp->redir->next->type_re, tmp->redir->next->name);

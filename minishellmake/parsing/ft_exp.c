@@ -3,30 +3,24 @@
 /*                                                        :::      ::::::::   */
 /*   ft_exp.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sdarci <sdarci@student.21-school.ru>       +#+  +:+       +#+        */
+/*   By: eheike <eheike@student.21-school.ru>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/26 15:39:24 by eheike            #+#    #+#             */
-/*   Updated: 2022/06/12 11:37:52 by sdarci           ###   ########.fr       */
+/*   Updated: 2022/06/19 22:49:52 by eheike           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-struct env1
-{
-	char *key;
-	char *value;
-	struct env1 *next;
-}; 
 
-char *ft_free(char *s)
-{
-	if (s == NULL)
-		return (s);
-	else 
-		free(s);
-	return(s);
-}
+// char *ftt_free(char *s)
+// {
+// 	if (s == NULL)
+// 		return (s);
+// 	else 
+// 		free(s);
+// 	return(s);
+// }
 char *ft_parse_value(char *argv)
 {
 	int i;
@@ -73,7 +67,7 @@ char *ft_parse_key(char *argv)
 	return (line);
 }
 
-struct env1	*env_list(int argc, char **argv, char **env)
+struct env1	*env_list(char **env)
 {
 	
 	struct env1 *env1;

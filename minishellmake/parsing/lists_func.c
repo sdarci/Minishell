@@ -6,7 +6,7 @@
 /*   By: sdarci <sdarci@student.21-school.ru>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/26 15:23:01 by eheike            #+#    #+#             */
-/*   Updated: 2022/06/12 11:39:42 by sdarci           ###   ########.fr       */
+/*   Updated: 2022/06/19 14:16:16 by sdarci           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,7 +105,7 @@ void	del_list(t_list **list)
 	free(*list);
 }
 
-t_tok *create_pipe_part(void *data, int i, int total)
+t_tok *create_pipe_part(void *data, int i, int total, char **env)
 {
 	t_tok	*new;
 
@@ -114,6 +114,7 @@ t_tok *create_pipe_part(void *data, int i, int total)
 		return (NULL);//вернуть ошибку
 	new->line = data;
 	new->num = i;
+	new->env = env;
 	new->total = total;
 	new->flag_l = 0;
 	new->flag_r = 0;
@@ -123,7 +124,7 @@ t_tok *create_pipe_part(void *data, int i, int total)
 	new->flag_dub_q = 0;
 	new->cmd = NULL;
 	new->cmd_arr = NULL;
-	new->f_build_in = 0;;
+	new->f_build_in = 0;
 	new->red = NULL;
 	new->check = NULL;
 	new->create = NULL;
@@ -137,7 +138,7 @@ void	ft_lstadd_front(t_tok **lst, t_tok *new)
 	*lst = new;
 }
 
-t_tok	*create_token_list(char **arr, int total)
+t_tok	*create_token_list(char **arr, int total, char **env)
 {
 	t_tok	*list;
 	t_tok	*new_node;
@@ -147,7 +148,7 @@ t_tok	*create_token_list(char **arr, int total)
 	list = NULL;
 	while(i >= 0)
 	{
-		new_node = create_pipe_part(arr[i], i, total);
+		new_node = create_pipe_part(arr[i], i, total, env);
 		if (new_node == NULL)
 			return (NULL);//вернуть ошибку
 		ft_lstadd_front(&list, new_node);

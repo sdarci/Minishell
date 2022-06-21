@@ -4,6 +4,7 @@ void	ft_echo(t_shell *s)
 {
 	int		i;
 
+
 	i = 0;
 	while(s->input[i] != '\0')
 	{

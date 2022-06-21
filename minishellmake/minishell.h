@@ -14,14 +14,24 @@
 #define COLOR_ORANGE "\x1b[38;5;208m"
 # define COLOR_RED				"\x1b[38;5;196m"
 # define COLOR_RESET			"\x1b[0m"
-# define MS_TEST_REGIME			1
-# define TREE_AMP				2
+#define STDIN		0
+#define STDOUT		1
+#define STDERR		2
 
 
 #include "parsing/LIBFT/libft.h"
 // #include <stdio.h>
 //# include "./minishell.h"
 //#include "ft_exp.c"
+
+
+
+typedef struct env1
+{
+	char *key;
+	char *value;
+	struct env1 *next;
+} t_env;
 
 typedef struct s_list
 {
@@ -38,26 +48,27 @@ typedef struct s_redir
 	int				type_out;// 1 - перезаписываем, 2 - дозаписываем
 }	t_redir;
 
-
 typedef struct s_tok
 {
-	int				total; // команды между трубами (труба + 1)
-	int				num; // номер команды
-	int				flag_l; //
-	int				flag_r; // 
-	int				flag_dub_r; //
-	int				flag_dub_l; //
-	int				flag_q; // 
-	int				flag_dub_q; //
-	char			*line; // stroka s komandoi 
-	char			*cmd; //comanda
+	int				total;
+	int				num;
+	char			**env;
+	int				flag_l;
+	int				flag_r;
+	int				flag_dub_r;
+	int				flag_dub_l;
+	int				flag_q;
+	int				flag_dub_q;
+	char			*line;
+	char			*cmd;
 	char			**cmd_arr;
 	int				f_build_in;
 	t_redir			*red;//содержит инпут и аутпут для команды
 	t_list			*check; // список файлов, которые нужно проверить на наличие и открыть, если их нет - вернуть ошибку
 	t_list			*create;// список файлов, которые нужно проверить на наличие и открыть, если их нет - создать
-	char			*heredoc_file;
 	struct s_tok	*next;
+	// int				p_r;//chtenie
+	// int				p_wr;//zapis
 }	t_tok;
 
 typedef struct s_data
@@ -66,14 +77,6 @@ typedef struct s_data
 	t_tok	*tokens;
 	t_list	*bildins;
 }	t_data;
-
-typedef struct env1
-{
-	char *key;
-	char *value;
-	struct env1 *next;
-} t_env;
-
 
 typedef struct s_shell
 {
@@ -86,6 +89,11 @@ typedef struct s_shell
 	t_env		*env1;
 	int			exit_status;
 	t_tok		*cmd;
+	int 		fd_her;
+	char		*heredoc_file;
+	int			p_r; // pipe read
+	int			p_wr; // pipe write
+	pid_t		kill_pid;
 }	t_shell;
 
 
@@ -93,11 +101,18 @@ typedef struct s_shell
 
 // cd.c
 //static void	too_many_arg(t_shell *shell);
-
-
+//pipe.c
 // echo.c
 void	ft_echo(t_shell *s);
+void	ms_cmd_execute_pipe(t_shell *shell);
 
+//signals.c
+void	ms_signals_handler(t_shell *shell, int type, pid_t pid);
+
+
+// mainc.c
+void	ft_get_status_string(t_shell *shell);
+void	msshell_do(t_shell *sh);
 //utils.c
 char	*ft_strcpy(char *dst, const char *src);
 size_t	ft_strlen(const char *s);
@@ -115,19 +130,19 @@ void	ms_cmd_execute_exit(t_shell *shell);
 
 //pars
 
-void	find_spec(t_tok **tokens);
-void	parse_of_line(t_tok **tokens, char **env);
-t_tok	*parse(char *line, char *env[]);
-void	check_env(char **line, char **env);
-t_tok	*create_token_list(char **arr, int total);
-t_redir	*create_red(int type);
-t_redir *last_elem_r(t_redir *list);
-void	add_red(t_redir **list, t_redir *new);
+// void	find_spec(t_tok **tokens);
+// void	parse_of_line(t_tok **tokens, char **env);
+// t_tok	*parse(char *line, char *env[]);
+// void	check_env(char **line, char **env);
+// t_tok	*create_token_list(char **arr, int total);
+// t_redir	*create_red(int type);
+// t_redir *last_elem_r(t_redir *list);
+// void	add_red(t_redir **list, t_redir *new);
 
-// export.c
-char *ft_parse_key(char *argv);
-char *ft_parse_value(char *argv);
-struct env1	*env_list(int argc, char **argv, char **env);
+// // export.c
+// char *ft_parse_key(char *argv);
+// char *ft_parse_value(char *argv);
+// struct env1	*env_list(int argc, char **argv, char **env);
 
 // executor.c
 void	do_shell_command(t_shell *shell);
@@ -136,15 +151,33 @@ void	ms_cmd_execute_fork(t_shell *shell);
 // redirects
 void	fd_redirect_out(t_shell *shell);
 void	fd_redirect_in(t_shell *shell);
+void	ms_write_heredoc_file_readline(t_shell *shell);
+void	ms_create_heredoc_file(t_shell *shell);
+
 
 void	find_spec(t_tok **tokens);
 t_list	*list_of_bildins(void);
-void	parse_of_line(t_tok **tokens, char **env);
+void	parse_of_line(t_tok **tokens);
+int		check_void_pipe(char **arr);
 t_list *create_node(void *data, int num_type);
 void	del_list(t_list **list);
-t_tok	*parse(char *line, char *env[]);
+t_tok	*parse(char *line, char *env[], int *flag);
 void	check_env(char **line, char **env);
-t_tok	*create_token_list(char **arr, int total);
+t_tok	*create_token_list(char **arr, int total, char **env);
 void	add_node(t_list **list, t_list *new);
 t_redir	*init_red(void);
+char	*del_quots(char *line, char **env);
+void	count_quots(int *q, int *dub_q, char *line);
+int		check_flag(char c, int flag);
+char	*add_part_arr(char *line, int i, int j);
+char    **mini_split(int total, const char *line, int i, char del);
+int		count_del(char *line, char del);
+void	rec_cmd(t_tok **toks, int *i);
+int		check_cmd_build_in(t_tok *tok);
+void	count_redir(int *i, char c, t_tok **tmp);
+void	sort_of_redir(t_tok **toks, int type, char *buf);
+void	new_redir(t_tok **toks, int type, int *i, int *flag);
+char	*change_var(char *line, int *i, char **env);
+struct	env1	*env_list(char **env);
+
 # endif

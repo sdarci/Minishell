@@ -1,49 +1,21 @@
 #include "minishell.h"
 
-static void	ms_cmd_execute_pipe(t_shell *shell)
-{
-	int		fd[4];
-
-	pipe(fd);
-	fd[2] = fd[0];
-	fd[3] = fd[1];
-	ms_cmd_execute_fork(shell);
-	while (shell->cmd->next != NULL)
-	{
-		close(fd[3]);
-		pipe(fd);
-		fd[3] = fd[1];
-	// ms_cmd_execute_fork(shell);
-		shell->cmd = shell->cmd->next;
-		ms_cmd_execute_fork(shell);
-		close(fd[2]);
-		fd[2] = fd[0];
-	}
-	fd[2] = fd[0];
-	close(fd[3]);
-	close(fd[2]);
-}
-
 void	msshell_do(t_shell *sh)
 {
-	// if (sh->cmd->next == NULL)
-	// 	do_shell_command(sh);
-	// if (sh->cmd->next == NULL && sh->cmd->red != NULL)
-	// {
-	// 	fd_redirect_out(sh);
-	// 	fd_redirect_in(sh);
-	// 	do_shell_command(sh);
-	// }
-	if (sh->cmd->next == NULL)
-		ms_cmd_execute_fork(sh);
-	else
+	//ms_cmd_execute_pipe(sh);
+	if (sh->cmd->next != NULL)	
+	{
 		ms_cmd_execute_pipe(sh);
+	}
+	else
+		ms_cmd_execute_fork(sh);
 }
 
 
-void	ft_get_status_string(t_shell *shell, char *cwd)
+void	ft_get_status_string(t_shell *shell)
 {
 	char *name;
+	char cwd[1000];
 
 	name = "Minishell";
 
@@ -73,6 +45,8 @@ t_shell *struct_init(void)
 	s->prompt_line = NULL;
 	s->prompt_name = NULL;
 	s->line = NULL;
+	s->heredoc_file = NULL;
+	s->fd_her = -1;
 	s->env1 = (t_env *)malloc(sizeof(t_env));
 	return(s);
 }
@@ -80,19 +54,27 @@ t_shell *struct_init(void)
 int main(int argc, char **argv, char **env)
 {
 	t_shell *shell;
-	char cwd[1000];
+	int		flag;
 
 	shell = struct_init();
 	argc++;
 	argv = NULL;
-	shell->prompt_name = (char *)malloc(10000);
+	shell->prompt_name = (char *)malloc(1000);
 	shell->copy_env = env;
 	while (1)
 	{
-		ft_get_status_string(shell, cwd);
-		shell->cmd = parse(shell->input, env);
-		msshell_do(shell);
-		free(shell->input);
+		ft_get_status_string(shell);
+		shell->cmd = parse(shell->input, shell->copy_env, &flag);
+		if (flag == 1)
+		{
+			printf("\nexit\n");
+			exit(1);
+		}
+		else if (flag == 0)
+		{
+			msshell_do(shell);
+			free(shell->input);
+		}
 	}
 	return (0);
 }

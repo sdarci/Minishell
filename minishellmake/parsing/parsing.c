@@ -6,7 +6,7 @@
 /*   By: eheike <eheike@student.21-school.ru>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/18 15:27:21 by eheike            #+#    #+#             */
-/*   Updated: 2022/06/21 15:06:35 by eheike           ###   ########.fr       */
+/*   Updated: 2022/06/22 19:00:04 by eheike           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,6 @@ void	find_spec(t_tok **tokens)
 				i++;
 				while (tmp->line[i] != c && tmp->line[i])
 					i++;
-				//i++;
 			}
 			if (tmp->line[i] == '>')
 			{
@@ -76,28 +75,16 @@ void	parse_of_line(t_tok **tokens) // больше 25 строк
 				new_redir(&tmp, 4, &i, &(tmp->flag_dub_l));
 			rec_cmd(&tmp, &i);
 		}
-		// if (tmp->red)
-		// {
-		// 	if (tmp->red->in)
-		// 		tmp->red->in = del_quots(tmp->red->in, tmp->env);
-		// 	if (tmp->red->out)
-		// 		tmp->red->out = del_quots(tmp->red->out, tmp->env);
-		// }
-		//printf("razdelenie po probelam\n");
-		//printf("cmd = %s\n", tmp->cmd);
 		tmp->cmd_arr = mini_split(count_del(tmp->cmd, ' '), tmp->cmd, i, ' ');
 		if (tmp->cmd_arr == NULL)
 			return ;
-		//tmp->cmd_arr = ft_split(tmp->cmd, 32);
 		i = 0;
 		while (tmp->cmd_arr[i])
 		{
 			tmp->cmd_arr[i] = del_quots(tmp->cmd_arr[i], tmp->env);
-			//printf("cmd line posle : %s\n", tmp->cmd_arr[i]);
 			i++;
 		}
-		//del_quots(tmp->cmd, env);
-		tmp->f_build_in = check_cmd_build_in(tmp);//проверка команды на то, является ли она билд ином
+		tmp->f_build_in = check_cmd_build_in(tmp);
 		tmp = tmp->next;
 	}
 }

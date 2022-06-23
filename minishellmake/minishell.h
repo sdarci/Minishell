@@ -67,8 +67,6 @@ typedef struct s_tok
 	t_list			*check; // список файлов, которые нужно проверить на наличие и открыть, если их нет - вернуть ошибку
 	t_list			*create;// список файлов, которые нужно проверить на наличие и открыть, если их нет - создать
 	struct s_tok	*next;
-	// int				p_r;//chtenie
-	// int				p_wr;//zapis
 }	t_tok;
 
 typedef struct s_data
@@ -94,13 +92,23 @@ typedef struct s_shell
 	int			p_r; // pipe read
 	int			p_wr; // pipe write
 	pid_t		kill_pid;
+	char		**test;
 }	t_shell;
 
 
 
 
-// cd.c
-//static void	too_many_arg(t_shell *shell);
+
+
+//unset.c
+void	ft_unset(t_shell *sh);
+
+//ft_export.c
+void	ft_export(t_shell *sh);
+
+//cd.c
+static void	too_many_arg(t_shell *shell);
+void	ms_cmd_execute_cd(t_shell *shell);
 //pipe.c
 // echo.c
 void	ft_echo(t_shell *s);
@@ -154,7 +162,7 @@ void	fd_redirect_in(t_shell *shell);
 void	ms_write_heredoc_file_readline(t_shell *shell);
 void	ms_create_heredoc_file(t_shell *shell);
 
-
+char	**ft_split(char const *s, char c);
 void	find_spec(t_tok **tokens);
 t_list	*list_of_bildins(void);
 void	parse_of_line(t_tok **tokens);
@@ -179,5 +187,11 @@ void	sort_of_redir(t_tok **toks, int type, char *buf);
 void	new_redir(t_tok **toks, int type, int *i, int *flag);
 char	*change_var(char *line, int *i, char **env);
 struct	env1	*env_list(char **env);
+
+
+
+
+char	**array_2d_dup(char **array);
+size_t	len_2d_array(char **string);
 
 # endif

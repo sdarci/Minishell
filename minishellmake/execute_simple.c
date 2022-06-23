@@ -15,8 +15,8 @@ static void	ms_write_heredoc_file(t_shell *shell)
 
 static int	build_or_cmds(t_shell *shell)
 {
-	// if (ft_strcmp(shell->cmd->cmd_arr[0], "cd") == 0)
-	// 	ms_cmd_execute_cd(shell);
+	if (ft_strcmp(shell->cmd->cmd_arr[0], "cd") == 0)
+		ms_cmd_execute_cd(shell);
 	// else if (ft_strcmp(shell->cmd->cmd_arr[0], "prompt") == 0)
 	// 	ms_cmd_execute_prompt(shell);
 	// else if (ft_strcmp(shell->cmd->cmd_arr[0], "pwd") == 0)
@@ -29,8 +29,10 @@ static int	build_or_cmds(t_shell *shell)
 		ft_echo(shell);
 	// else if (ft_strcmp(shell->cmd->cmd_arr[0], "env") == 0)
 	// 	ms_cmd_execute_env(shell);
-	// else if (shell->cmd->cmd_arr[0][0])
-	do_shell_command(shell);
+	else if (ft_strcmp(shell->cmd->cmd_arr[0], "export") == 0)
+		ft_export(shell);
+	else if (shell->cmd->cmd_arr[0][0])
+		do_shell_command(shell);
 	ms_cmd_argv_free(shell->cmd);
 	ms_shell_destroy(shell);
 	exit(0);
@@ -165,8 +167,11 @@ void	ms_cmd_execute_fork(t_shell *shell)
 		ms_cmd_execute_command_error(shell, tempfd_stdout);
 	}
 	else
+	{
+		ms_signals_handler(shell, 2, pid);
 		waitpid(pid, &test, WUNTRACED);
-	//ms_signals_handler(shell, 2, pid);
+		//ms_signals_handler(shell, 2, pid);
+	}
 	//build_or_cmds(shell);
 	//ms_cmd_execute_after_fork(shell, pid);
 }

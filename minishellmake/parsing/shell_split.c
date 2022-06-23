@@ -6,7 +6,7 @@
 /*   By: eheike <eheike@student.21-school.ru>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 00:23:51 by eheike            #+#    #+#             */
-/*   Updated: 2022/06/20 18:44:46 by eheike           ###   ########.fr       */
+/*   Updated: 2022/06/22 17:23:03 by eheike           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ char	**mini_split(int total, const char *line, int i, char del)
 
 	if (line == NULL)
 		return (NULL);
-	printf("tot = %d, line = %s, len = %zu, i = %d, del = %d\n", total, line, ft_strlen(line), i, del);
+	//printf("tot = %d, line = %s, len = %zu, i = %d, del = %d\n", total, line, ft_strlen(line), i, del);
 	i = 0;
 	flag = 0;
 	e = 0;
@@ -54,7 +54,7 @@ char	**mini_split(int total, const char *line, int i, char del)
 	{
 		j = i;
 		flag = 0;
-		printf("line[i] = %c i = %d\n", line[i], i);
+		//printf("line[i] = %c i = %d\n", line[i], i);
 		while (line[i] && !(line[i] == del && flag == 0))
 		{
 			flag = check_flag(line[i], flag);
@@ -62,7 +62,7 @@ char	**mini_split(int total, const char *line, int i, char del)
 			//printf("flag = %d, tmp[i] = %c\n", flag, line[i]);
 		}
 		arr[e] = ft_substr(line, j, i - j);
-		//printf("arr[e] = %s\n", arr[e]);
+		printf("arr[e] = %s\n", arr[e]);
 		//printf("posle 1 :line[i] = %c i = %d\n", line[i], i);
 		if (arr[e] == NULL)
 			return (NULL);
@@ -75,7 +75,7 @@ char	**mini_split(int total, const char *line, int i, char del)
 	e = 0;
 	while (arr[e])
 	{
-		printf("arr : %s\n", arr[e]);
+		//printf("arr : %s\n", arr[e]);
 		e++;
 	}
 	return (arr);

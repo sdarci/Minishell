@@ -6,7 +6,7 @@
 /*   By: eheike <eheike@student.21-school.ru>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 00:19:27 by eheike            #+#    #+#             */
-/*   Updated: 2022/06/20 18:09:20 by eheike           ###   ########.fr       */
+/*   Updated: 2022/06/22 18:57:48 by eheike           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,19 +31,14 @@ void	rec_cmd(t_tok **toks, int *i)
 			while ((*toks)->line[*i] != c)
 				(*i)++;
 			buf = ft_substr((*toks)->line, j, (*i) - j + 1);
-			// buf = (char *)malloc(sizeof(char) * (*i - j + 1));
-			// if (buf == NULL)
-			// 	return ;// вернуть ошибку
-			// while (j <= *i)
-			// 	buf[a++] = (*toks)->line[j++];
-			// buf[a] = '\0';
 			if ((*toks)->cmd == NULL)
 				(*toks)->cmd = buf;
 			else
 			{
-				//tmp = (*toks)->cmd;
+				tmp = (*toks)->cmd;
 				(*toks)->cmd = ft_strjoin((*toks)->cmd, buf);
-				//free(tmp);
+				free(tmp);
+				free(buf);
 			}
 			if ((*toks)->line[*i])
 				(*i)++;
@@ -64,9 +59,10 @@ void	rec_cmd(t_tok **toks, int *i)
 					(*toks)->cmd = buf;
 				else
 				{
-					//tmp = (*toks)->cmd;
+					tmp = (*toks)->cmd;
 					(*toks)->cmd = ft_strjoin((*toks)->cmd, buf);
-					//free(tmp);
+					free(tmp);
+					free(buf);
 				}
 			}
 		}

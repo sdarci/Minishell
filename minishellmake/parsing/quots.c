@@ -6,7 +6,7 @@
 /*   By: eheike <eheike@student.21-school.ru>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 00:20:58 by eheike            #+#    #+#             */
-/*   Updated: 2022/06/21 17:56:01 by eheike           ###   ########.fr       */
+/*   Updated: 2022/06/22 18:53:14 by eheike           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ char	*del_quots(char *line, char **env)
 	i = 0;
 	end = 0;
 	start = 0;
+	printf("line = %s\n", line);
 	while (line[i])
 	{
 		flag = 0;
@@ -45,9 +46,9 @@ char	*del_quots(char *line, char **env)
 					i++;
 				if (line[i] == '$')
 				{
-					printf("i = %d\n", i);
+					//printf("i = %d\n", i);
 					line = change_var(line, &i, env);
-					printf("i posle = %d\n", i);
+					//printf("i posle = %d\n", i);
 				}
 			}
 			//i++;
@@ -65,22 +66,19 @@ char	*del_quots(char *line, char **env)
 		else if (line[i] == '$')
 		{
 			line = change_var(line, &i, env);
-			printf("i posle = %d\n", i);
-			//printf("line bez $ = %s (%zu)\n", line, ft_strlen(line));
-			//i++;
+			printf("line bez $ = %s (%zu)\n", line, ft_strlen(line));
 		}
 		if (flag == 1)
 		{
 			buf = NULL;
-			printf("line posle cut $ = %s, len = %zu\n", line, ft_strlen(line));
-			printf("buf0 = %s\n", buf);
+			//printf("line posle cut $ = %s, len = %zu\n", line, ft_strlen(line));
+			//printf("buf0 = %s\n", buf);
 			// while (line[i] != 34 && line[i] != 39)
 			// 	i++;
 			// c = line[i];
 			if (start > 0)
 			{
 				buf = ft_substr(line, 0, start);
-				printf("buf1 = %s\n", buf);
 			}
 			if (end > start + 1)
 			{
@@ -92,9 +90,7 @@ char	*del_quots(char *line, char **env)
 					buf = ft_strjoin(buf, tmp);
 					free(tmp);
 				}
-				printf("buf2 = %s\n", buf);
 			}
-			printf("ft_strlen(line) = %zu, end + 1 = %d, line[end] = %c \n", ft_strlen(line), end + 1, line[end]);
 			if (ft_strlen(line) > end + 2)
 			{
 				tmp = ft_substr(line, end + 1, ft_strlen(line) - end - 1);
@@ -105,11 +101,9 @@ char	*del_quots(char *line, char **env)
 					buf = ft_strjoin(buf, tmp);
 					free(tmp);
 				}
-				printf("buf3 = %s\n", buf);
 			}
 			free(line);
 			line = buf;
-			printf("line = %s\n", line);
 			if (line == NULL)
 			{
 				line = malloc(sizeof(char) * 1);
@@ -118,8 +112,14 @@ char	*del_quots(char *line, char **env)
 			}
 			i = i - 2;
 		}
-		if (line && line[i])
+		if (i >= 0)
+		{
+			if (line[i])
+				i++;
+		}
+		else
 			i++;
+		//printf("line v konce : %s line[i] = %c i = %d\n", line, line[i], i);
 	}
 	return (line);
 }

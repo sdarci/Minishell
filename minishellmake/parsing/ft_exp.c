@@ -6,7 +6,7 @@
 /*   By: eheike <eheike@student.21-school.ru>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/26 15:39:24 by eheike            #+#    #+#             */
-/*   Updated: 2022/06/19 22:49:52 by eheike           ###   ########.fr       */
+/*   Updated: 2022/06/24 17:01:50 by eheike           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,4 +91,18 @@ struct env1	*env_list(char **env)
 		env1->next = temp;
 	}
 	return (env1);
+}
+
+void	free_env(t_env *env)
+{
+	t_env	*tmp;
+
+	while (env)
+	{
+		tmp = env;
+		free(env->key);
+		free(env->value);
+		env = env->next;
+		free(tmp);
+	}
 }

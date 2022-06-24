@@ -5,14 +5,14 @@ void	fd_redirect_out(t_shell *shell)
 	int	fd;
 
 	fd = 0;
-	if (shell->cmd->red != NULL) 
+	if (shell->cmd->red != NULL)
 	{
 		if (shell->cmd->red->type_out == 1 || shell->cmd->red->type_out == 2)
 		{
 			if (shell->cmd->red->type_out == 1)
 				fd = open(shell->cmd->red->out,
 						O_WRONLY | O_CREAT | O_TRUNC, 0644);
-			else if (shell->cmd->red->type_out == 2 )
+			else if (shell->cmd->red->type_out == 2)
 				fd = open(shell->cmd->red->out,
 						O_WRONLY | O_CREAT | O_APPEND, 0644);
 			if (shell->cmd->red->type_in == 4)
@@ -29,24 +29,22 @@ void	fd_redirect_out(t_shell *shell)
 					perror(shell->cmd->red->out);
 				ft_putstr(COLOR_RESET, 2);
 				ms_cmd_argv_free(shell->cmd);
-				ms_shell_destroy(shell); 
+				ms_shell_destroy(shell);
 				exit(1);
 			}
-		dup2(fd, 1);
+			dup2(fd, 1);
 		}
 	}
 }
-
 
 void	fd_redirect_in(t_shell *shell)
 {
 	int	fd;
 
 	fd = 0;
-
 	if (shell->cmd->red != NULL)
 	{
-		if (shell->cmd->red->type_in == 3 || shell->cmd->red->type_in == 4 )
+		if (shell->cmd->red->type_in == 3 || shell->cmd->red->type_in == 4)
 		{
 			if (shell->cmd->red->type_in == 3)
 			{
@@ -63,14 +61,13 @@ void	fd_redirect_in(t_shell *shell)
 				exit(1);
 			}
 			if (dup2(fd, 0) == -1)
-				ft_putstr_fd(strerror(errno),2);
-			dup2(fd,0);
+				ft_putstr_fd(strerror(errno), 2);
+			dup2(fd, 0);
 		}	
 	}
 }
 
-
-void	ms_write_heredoc_file_readline(t_shell *shell) // heredoc с ввода 
+void	ms_write_heredoc_file_readline(t_shell *shell)
 {
 	char	*str;
 	char	*lim;
@@ -84,48 +81,45 @@ void	ms_write_heredoc_file_readline(t_shell *shell) // heredoc с ввода
 		if (str == NULL)
 		{
 			printf("!!! heredoc razdelen znakom konca faila vmesto «%s»\n",
-				shell->cmd->red->out);
+				shell->cmd->red->in);
 			break ;
 		}
 		if (ft_strcmp(lim, str) == 0)
 			break ;
-		write(shell->fd_her, str, ft_strlen(str)); 
+		write(shell->fd_her, str, ft_strlen(str));
 		write(shell->fd_her, "\n", 1);
 		free(str);
 	}
 	free(str);
 }
+
 void	ms_create_heredoc_file(t_shell *shell)
 {
 	int		fd;
 	char	*filename;
 
+	filename = "del";
 	if (shell->cmd->red != NULL)
 	{
 		if (shell->cmd->red->type_in == 4)
 		{
 			fd = -1;
-			filename = NULL;
 			while (fd == -1)
 			{
-				if (filename)
-					free(filename);
-				filename = "ADASDSAD";
-				fd = open(filename, O_CREAT  | O_RDWR, 0644); // | O_EXCL
+				fd = open(filename, O_CREAT | O_EXCL | O_RDWR, 0644);
 			}
-			if (shell->heredoc_file != NULL) //shell->heredoc_file
+			if (shell->heredoc_file != NULL)
 			{
-				unlink(shell->heredoc_file);
-				free(shell->heredoc_file);
+				fd = open(filename, O_CREAT | O_TRUNC | O_RDWR, 0644);
+				shell->heredoc_file = NULL;
 			}
 			shell->fd_her = fd;
 			shell->heredoc_file = filename;
-			shell->cmd->cmd_arr[1] = filename;
+			if (shell->cmd->cmd_arr[1] != NULL)
+				shell->cmd->cmd_arr[1] = filename;
 		}
 	}
 }
-
-
 
 //////////
 //чтение хередока

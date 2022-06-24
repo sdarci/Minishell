@@ -6,7 +6,7 @@
 /*   By: sdarci <sdarci@student.21-school.ru>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/26 15:23:01 by eheike            #+#    #+#             */
-/*   Updated: 2022/06/19 14:16:16 by sdarci           ###   ########.fr       */
+/*   Updated: 2022/06/24 15:51:12 by sdarci           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,13 +75,13 @@ t_list	*list_of_bildins(void)
 	char	**arr_cmd;
 
 	arr_cmd = (char **)malloc(sizeof(char *) * 8);
-	arr_cmd[0] = ft_strdup("echo");
-	arr_cmd[1] = ft_strdup("cd");
-	arr_cmd[2] = ft_strdup("pwd");
-	arr_cmd[3] = ft_strdup("export");
-	arr_cmd[4] = ft_strdup("unset");
-	arr_cmd[5] = ft_strdup("env");
-	arr_cmd[6] = ft_strdup("exit");
+	arr_cmd[0] = "echo";
+	arr_cmd[1] = "cd";
+	arr_cmd[2] = "pwd";
+	arr_cmd[3] = "export";
+	arr_cmd[4] = "unset";
+	arr_cmd[5] = "env";
+	arr_cmd[6] = "exit";
 	arr_cmd[7] = NULL;
 
 	list_of_bi = add_to_bildins(arr_cmd);
@@ -98,11 +98,13 @@ void	del_list(t_list **list)
 	while(tmp)
 	{
 		del = tmp;
-		tmp = tmp->next;
-		free(del->data);
+		printf("%p\n", tmp);
+		tmp = NULL;
+		tmp = del->next;
+		//printf("%p\n", tmp);
+		//free(del->data);
 		free(del);
 	}
-	free(*list);
 }
 
 t_tok *create_pipe_part(void *data, int i, int total, char **env)
@@ -111,7 +113,7 @@ t_tok *create_pipe_part(void *data, int i, int total, char **env)
 
 	new = malloc(sizeof(t_tok));
 	if (!new)
-		return (NULL);//вернуть ошибку
+		return (NULL);
 	new->line = data;
 	new->num = i;
 	new->env = env;
@@ -124,7 +126,7 @@ t_tok *create_pipe_part(void *data, int i, int total, char **env)
 	new->flag_dub_q = 0;
 	new->cmd = NULL;
 	new->cmd_arr = NULL;
-	new->f_build_in = 0;
+	//new->f_build_in = 0;
 	new->red = NULL;
 	new->check = NULL;
 	new->create = NULL;
@@ -150,7 +152,7 @@ t_tok	*create_token_list(char **arr, int total, char **env)
 	{
 		new_node = create_pipe_part(arr[i], i, total, env);
 		if (new_node == NULL)
-			return (NULL);//вернуть ошибку
+			return (NULL);//вернуть ошибку 1
 		ft_lstadd_front(&list, new_node);
 		i--;
 	}
@@ -163,7 +165,7 @@ t_redir	*init_red(void)
 
 	new = (t_redir *)malloc(sizeof(t_redir));
 	if (!new)
-		return (NULL); //вернуть ошибку
+		return (NULL); //вернуть ошибку 1
 	new->in = NULL;
 	new->out = NULL;
 	new->type_in = 0;

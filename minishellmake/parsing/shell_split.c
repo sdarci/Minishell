@@ -6,7 +6,7 @@
 /*   By: eheike <eheike@student.21-school.ru>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 00:23:51 by eheike            #+#    #+#             */
-/*   Updated: 2022/06/22 17:23:03 by eheike           ###   ########.fr       */
+/*   Updated: 2022/06/23 17:57:20 by eheike           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,41 +43,30 @@ char	**mini_split(int total, const char *line, int i, char del)
 
 	if (line == NULL)
 		return (NULL);
-	//printf("tot = %d, line = %s, len = %zu, i = %d, del = %d\n", total, line, ft_strlen(line), i, del);
 	i = 0;
 	flag = 0;
 	e = 0;
 	arr = (char **)malloc(sizeof(char *) * (total + 2));
 	if (arr == NULL)
 		return (NULL); // проблема с маллок
-	while (line[i])  //line[i] && && e <= total
+	while (line[i])
 	{
 		j = i;
 		flag = 0;
-		//printf("line[i] = %c i = %d\n", line[i], i);
-		while (line[i] && !(line[i] == del && flag == 0))
+		while (line[i] && !(line[i] == del && line[i + 1] != del && flag == 0))
 		{
 			flag = check_flag(line[i], flag);
 			i++;
-			//printf("flag = %d, tmp[i] = %c\n", flag, line[i]);
 		}
+
 		arr[e] = ft_substr(line, j, i - j);
-		printf("arr[e] = %s\n", arr[e]);
-		//printf("posle 1 :line[i] = %c i = %d\n", line[i], i);
 		if (arr[e] == NULL)
 			return (NULL);
 		e++;
 		if (line[i])
 			i++;
-		//printf("posle 2 :line[i] = %c i = %d\n", line[i], i);
 	}
 	arr[e] = NULL;
-	e = 0;
-	while (arr[e])
-	{
-		//printf("arr : %s\n", arr[e]);
-		e++;
-	}
 	return (arr);
 }
 
@@ -92,10 +81,7 @@ int	count_del(char *line, char del)
 	if (line == NULL)
 		return (0);
 	while (line[i])
-	{
-		//printf("line : %c\n", line[i]);
 		i++;
-	}
 	i = 0;
 	while (line[i])
 	{
@@ -106,9 +92,11 @@ int	count_del(char *line, char del)
 			while (line[i] != c)
 				i++;
 		}
-		if (line[i] == del)
+		if (line[i] == del && line[i + 1] != del)
 			total++;
 		i++;
 	}
+	if (line[i - 1] == del)
+		total--;
 	return (total);
 }

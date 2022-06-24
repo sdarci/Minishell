@@ -14,7 +14,6 @@ void	pre_executer(t_shell *shell, int fd_r, int fd_wr)
 	}
 }
 
-
 void	ms_cmd_execute_pipe(t_shell *shell)
 {
 	int		fd[4];

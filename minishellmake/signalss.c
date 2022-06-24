@@ -9,8 +9,8 @@ static void	ms_signal_handler(int sigtype)
 		ft_putstr_fd("\nVi nazhali \"Ctrl+Z\"", 1);
 	if (sigtype == SIGQUIT)
 	{
-		ft_putchar_fd('\b',1);
-		ft_putchar_fd('\b',1);
+		ft_putchar_fd('\b', 1);
+		ft_putchar_fd('\b', 1);
 	}
 	if (sigtype == SIGINT || sigtype == SIGTSTP)
 	{
@@ -46,8 +46,6 @@ static void	ms_signal_kill_or_exit(int sigtype)
 	if (sigtype == SIGQUIT)
 	{
 		printf("EXIT \n");
-		// ms_cmd_argv_free(g_shell->cmd);
-		// ms_shell_destroy(g_shell);
 		exit (131);
 	}
 	if (sigtype == SIGINT)
@@ -61,6 +59,8 @@ static void	ms_signal_kill_or_exit(int sigtype)
 //Перехват сигналов (type 0 - ожидание, 1 - дочерний, 2 - основной после fork)
 void	ms_signals_handler(t_shell *shell, int type, pid_t pid)
 {
+	int	test;
+
 	shell->kill_pid = pid;
 	if (type == 0)
 	{
@@ -81,4 +81,5 @@ void	ms_signals_handler(t_shell *shell, int type, pid_t pid)
 		signal(SIGTSTP, ms_signal_only_text);
 		signal(SIGQUIT, ms_signal_only_text);
 	}
+	waitpid(pid, &test, WUNTRACED);
 }

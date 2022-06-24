@@ -6,7 +6,7 @@
 /*   By: eheike <eheike@student.21-school.ru>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 00:20:58 by eheike            #+#    #+#             */
-/*   Updated: 2022/06/22 18:53:14 by eheike           ###   ########.fr       */
+/*   Updated: 2022/06/23 17:56:13 by eheike           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,6 @@ char	*del_quots(char *line, char **env)
 	i = 0;
 	end = 0;
 	start = 0;
-	printf("line = %s\n", line);
 	while (line[i])
 	{
 		flag = 0;
@@ -45,13 +44,8 @@ char	*del_quots(char *line, char **env)
 				while (line[i] != '$' && line[i] != 34)
 					i++;
 				if (line[i] == '$')
-				{
-					//printf("i = %d\n", i);
 					line = change_var(line, &i, env);
-					//printf("i posle = %d\n", i);
-				}
 			}
-			//i++;
 			end = i;
 		}
 		else if (line[i] == 39)
@@ -66,16 +60,11 @@ char	*del_quots(char *line, char **env)
 		else if (line[i] == '$')
 		{
 			line = change_var(line, &i, env);
-			printf("line bez $ = %s (%zu)\n", line, ft_strlen(line));
+			//printf("line bez $ = %s (%zu)\n", line, ft_strlen(line));
 		}
 		if (flag == 1)
 		{
 			buf = NULL;
-			//printf("line posle cut $ = %s, len = %zu\n", line, ft_strlen(line));
-			//printf("buf0 = %s\n", buf);
-			// while (line[i] != 34 && line[i] != 39)
-			// 	i++;
-			// c = line[i];
 			if (start > 0)
 			{
 				buf = ft_substr(line, 0, start);
@@ -119,7 +108,6 @@ char	*del_quots(char *line, char **env)
 		}
 		else
 			i++;
-		//printf("line v konce : %s line[i] = %c i = %d\n", line, line[i], i);
 	}
 	return (line);
 }
@@ -155,7 +143,6 @@ void	count_quots(int *q, int *dub_q, char *line)
 		}
 		i++;
 	}
-	printf("q = %d, dub_q = %d\n", *q, *dub_q);
 	if (*dub_q % 2 || *q % 2)
 		exit(1); // ошибка, нечетное количество кавычек
 }

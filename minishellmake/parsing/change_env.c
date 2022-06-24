@@ -6,7 +6,7 @@
 /*   By: eheike <eheike@student.21-school.ru>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/26 15:24:50 by eheike            #+#    #+#             */
-/*   Updated: 2022/06/22 18:55:01 by eheike           ###   ########.fr       */
+/*   Updated: 2022/06/24 17:02:54 by eheike           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,17 +16,23 @@ char	*find_var(char *var, char **env)
 {
 	struct env1	*list_of_env;
 	struct env1	*tmp;
+	char		*res;
 
 	list_of_env = env_list(env);
 	tmp = list_of_env;
 	while (tmp)
 	{
 		if (!ft_strncmp(var, tmp->key, ft_strlen(var)))
-			return (tmp->value);
+		{
+			res = ft_strdup(tmp->value);
+			free_env(list_of_env);
+			return (res);
+		}
 		else
 			tmp = tmp->next;
 	}
 	free(var);
+	free_env(list_of_env);
 	return (NULL);
 }
 

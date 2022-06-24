@@ -35,9 +35,7 @@ static void	delete_variable(char **env)
 	i = -1;
 	while (env[++i])
 		env[i] = env[i + 1];
-	//free(tmp);
 }
-
 
 void	ft_unset(t_shell *sh)
 {
@@ -53,10 +51,10 @@ void	ft_unset(t_shell *sh)
 			j = find_variable(sh->copy_env, (sh->cmd->cmd_arr)[1]);
 			if (j > 0)
 				delete_variable(sh->copy_env + j);
-			else 
+			else
 			{
 				printf("ERROR NOTHINK TO UNSET\n");
-				break;
+				break ;
 			}
 		}
 	}

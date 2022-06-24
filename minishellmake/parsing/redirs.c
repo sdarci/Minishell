@@ -6,7 +6,7 @@
 /*   By: eheike <eheike@student.21-school.ru>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 00:15:41 by eheike            #+#    #+#             */
-/*   Updated: 2022/06/20 18:53:59 by eheike           ###   ########.fr       */
+/*   Updated: 2022/06/23 22:59:51 by eheike           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,11 @@ void	count_redir(int *i, char c, t_tok **tmp)
 	while ((*tmp)->line[*i] == ' ')
 		(*i)++;
 	if ((flag || flag_dub) && (*tmp)->red == NULL)
+	{
 		(*tmp)->red = init_red();
+		if ((*tmp)->red == NULL)
+			return ;//проблемы с маллок 1
+	}
 	return ;
 }
 
@@ -66,6 +70,24 @@ void	sort_of_redir(t_tok **toks, int type, char *buf)
 	return ;
 }
 
+int	skip_quots(char *line, char *sym, int i)
+{
+	char	c;
+
+	while (line[i] && ft_strchr(sym, line[i]) == 0)
+	{
+		if (line[i] == 34 || line[i] == 39)
+		{
+			c = line[i];
+			i++;
+			while (line[i] != c)
+				i++;
+		}
+		i++;
+	}
+	return (i);
+}
+
 void	new_redir(t_tok **toks, int type, int *i, int *flag) // учесть кавычки
 {
 	int		j;
@@ -77,23 +99,13 @@ void	new_redir(t_tok **toks, int type, int *i, int *flag) // учесть кав
 		(*i)++;
 	else if (type == 2 || type == 4)
 		(*i) += 2;
-	if ((*toks)->line[*i] == ' ')
+	while ((*toks)->line[*i] == ' ')
 		(*i)++;
 	j = *i;
-	while ((*toks)->line[*i] && (*toks)->line[*i] != ' ' && (*toks)->line[*i] != '>' && (*toks)->line[*i] != '<')
-	{
-		if ((*toks)->line[*i] == 34 || (*toks)->line[*i] == 39)
-		{
-			c = (*toks)->line[*i];
-			(*i)++;
-			while ((*toks)->line[*i] != c)
-				(*i)++;
-		}
-		(*i)++;
-	}
+	(*i) = skip_quots((*toks)->line, " ><", *i);
 	buf = (char *)malloc(sizeof(char) * (*i - j + 1));
 	if (buf == NULL)
-		exit(1);// вернуть ошибку
+		exit(1);// вернуть ошибку маллок 1
 	a = 0;
 	while (j < *i)
 		buf[a++] = (*toks)->line[j++];

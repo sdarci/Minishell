@@ -1,3 +1,7 @@
 {
-	"makefile.extensionOutputFolder": "./.vscode"
+	"makefile.extensionOutputFolder": "./.vscode",
+	"files.associations": {
+		"minishell.h": "c",
+		"libft.h": "c"
+	}
 }

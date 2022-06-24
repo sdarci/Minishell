@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cmd.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: eheike <eheike@student.21-school.ru>       +#+  +:+       +#+        */
+/*   By: sdarci <sdarci@student.21-school.ru>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 00:19:27 by eheike            #+#    #+#             */
-/*   Updated: 2022/06/22 18:57:48 by eheike           ###   ########.fr       */
+/*   Updated: 2022/06/24 15:35:47 by sdarci           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,12 +31,16 @@ void	rec_cmd(t_tok **toks, int *i)
 			while ((*toks)->line[*i] != c)
 				(*i)++;
 			buf = ft_substr((*toks)->line, j, (*i) - j + 1);
+			if (buf == NULL)
+				return ;//ошибка маллока 1
 			if ((*toks)->cmd == NULL)
 				(*toks)->cmd = buf;
 			else
 			{
 				tmp = (*toks)->cmd;
 				(*toks)->cmd = ft_strjoin((*toks)->cmd, buf);
+				if ((*toks)->cmd == NULL)
+					return ;// ошибка маллока 1
 				free(tmp);
 				free(buf);
 			}
@@ -45,13 +49,14 @@ void	rec_cmd(t_tok **toks, int *i)
 		}
 		else
 		{
-			while ((*toks)->line[*i] && (*toks)->line[*i] != '>' && (*toks)->line[*i] != '<' && (*toks)->line[*i] != 34 && (*toks)->line[*i] != 39)
+			while ((*toks)->line[*i] && (*toks)->line[*i] != '>' && (*toks)->line[*i] != '<' && \
+			 (*toks)->line[*i] != 34 && (*toks)->line[*i] != 39)
 				(*i)++;
 			if (*i > j)
 			{
 				buf = (char *)malloc(sizeof(char) * (*i - j + 1));
 				if (buf == NULL)
-					return ;// вернуть ошибку
+					return ;// вернуть ошибку маллок 1
 				while (j < *i)
 					buf[a++] = (*toks)->line[j++];
 				buf[a] = '\0';
@@ -61,6 +66,8 @@ void	rec_cmd(t_tok **toks, int *i)
 				{
 					tmp = (*toks)->cmd;
 					(*toks)->cmd = ft_strjoin((*toks)->cmd, buf);
+					if ((*toks)->cmd == NULL)
+						return ;// ошибка маллока 1
 					free(tmp);
 					free(buf);
 				}
@@ -73,6 +80,7 @@ int	check_cmd_build_in(t_tok *tok)
 {
 	t_list	*list_of_bilds;
 	t_list	*tmp;
+	char	*test;
 
 	list_of_bilds = list_of_bildins();
 	tmp = list_of_bilds;
@@ -82,11 +90,12 @@ int	check_cmd_build_in(t_tok *tok)
 			return (-1);
 		if (ft_strncmp(tok->cmd_arr[0], tmp->data, ft_strlen(tok->cmd_arr[0])) == 0)
 		{
-			//del_list(&list_of_bilds);//освободить массив и все его внутренние маллоки
-			return (tmp->type);
+			// test = ft_strdup(tmp->type);
+			del_list(&list_of_bilds);
+			return (0);
 		}
 		tmp = tmp->next;
 	}
-	//del_list(&list_of_bilds);
+	del_list(&list_of_bilds);
 	return (0);
 }
